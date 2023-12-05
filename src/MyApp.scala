@@ -69,6 +69,8 @@ object MyApp extends App {
 
   def handleFour(): Boolean = {
     // Implement logic for menu option 4
+    val foodWithMaxRise = getFoodWithMaxRise()
+    println(s"The food that has risen the most in the last 6 months is: $foodWithMaxRise")
     true
   }
 
@@ -150,7 +152,7 @@ object MyApp extends App {
   }
   // Function to show prices
   def mnuShowPrices(f: () => Map[String, Int]): Unit = {
-    val pricesMap = f() // Call the function to get the Map[String, Int]
+    val pricesMap = f()
     pricesMap.foreach { case (x, y) => println(s"$x: $y") }
   }
 
@@ -164,4 +166,21 @@ object MyApp extends App {
     val pricesMap = f()
     pricesMap.foreach { case (x, median) => println(s"$x: Median - $median")}
 }
+
+  def getFoodWithMaxRise(): String = {
+    val sixMonthsAgo = mapdata.view.mapValues(_.slice(0, 6)) // Prices from 6 months ago
+    val currentPrices = mapdata.view.mapValues(_.slice(6, 12)) // Prices from the last 6 months
+
+    val priceDifference = sixMonthsAgo.map { case (food, pricesSixMonthsAgo) =>
+      val pricesCurrent = currentPrices(food)
+      val difference = pricesCurrent.zip(pricesSixMonthsAgo).map { case (current, ago) =>
+        current - ago
+      }.sum
+      food -> difference
+    }
+
+    // Finding the food item with the maximum rise in price
+    val maxRiseFood = priceDifference.maxBy(_._2)
+    maxRiseFood._1 // Returning the food item symbol with the maximum rise
+  }
 }
