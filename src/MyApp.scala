@@ -55,8 +55,8 @@ object MyApp extends App {
   }
 
   def handleTwo(): Boolean = {
-    println("The Highest and the Lowest prices for each food accordingly:")
-    mnuShowPrices(currentPrices) // calls function mnuShowPrices, which invokes function currentPrices
+    println("Highest and Lowest prices for each food:")
+    mnuShowHighestAndLowestPrices(highestAndLowestPrices) // calls function mnuShowPrices, which invokes function currentPrices
     true
   }
 
@@ -106,11 +106,35 @@ object MyApp extends App {
     }
   }
 
+  // Utility function to find both the highest and lowest prices in a list of prices
+  def highestAndLowestPrices(): Map[String, (Int, Int)] = {
+    mapdata.map { case (food, prices) =>
+      val highestPrice = findHighestPrice(prices)
+      val lowestPrice = findLowestPrice(prices)
+      food -> (highestPrice, lowestPrice)
+    }
+  }
+
+  // Utility function to find the highest price in a list of prices
+  def findHighestPrice(prices: List[Int]): Int = {
+    prices.maxOption.getOrElse(0)
+  }
+
+  // Utility function to find the lowest price in a list of prices
+  def findLowestPrice(prices: List[Int]): Int = {
+    prices.minOption.getOrElse(0)
+  }
+
   // Function to show prices
   // Function to show prices
   def mnuShowPrices(f: () => Map[String, Int]): Unit = {
     val pricesMap = f() // Call the function to get the Map[String, Int]
     pricesMap.foreach { case (x, y) => println(s"$x: $y") }
   }
-}
 
+  def mnuShowHighestAndLowestPrices(f: () => Map[String, (Int, Int)]): Unit = {
+    val pricesMap = f()
+    pricesMap.foreach { case (x, (highest, lowest)) => println(s"$x: Highest - $highest, Lowest - $lowest")
+  }
+}
+}
