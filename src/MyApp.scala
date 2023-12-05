@@ -76,6 +76,11 @@ object MyApp extends App {
 
   def handleFive(): Boolean = {
     // Implement logic for menu option 5
+    println(s"Select two foods to compare the average values over the 2-year period.")
+    println("Available foods:")
+    mapdata.keys.foreach(println)
+    val (firstFood, secondFood) = getUserInputForFoods()
+    compareAveragePrices(firstFood, secondFood)
     true
   }
 
@@ -183,4 +188,42 @@ object MyApp extends App {
     val maxRiseFood = priceDifference.maxBy(_._2)
     maxRiseFood._1 // Returning the food item symbol with the maximum rise
   }
+
+  def getUserInputForFoods(): (String, String) = {
+    println("Enter the first food:")
+    val firstFood = readLine().toUpperCase()
+
+    println("Enter the second food:")
+    val secondFood = readLine().toUpperCase()
+
+    (firstFood, secondFood)
+  }
+
+  def compareAveragePrices(firstFood: String, secondFood: String): Unit = {
+    if (mapdata.contains(firstFood) && mapdata.contains(secondFood)) {
+      val averageFirstFood = calculateAverage(mapdata(firstFood))
+      val averageSecondFood = calculateAverage(mapdata(secondFood))
+
+      println(s"Average price of $firstFood: $averageFirstFood")
+      println(s"Average price of $secondFood: $averageSecondFood")
+
+      val comparisonResult = compareAverages(averageFirstFood, averageSecondFood)
+      println(comparisonResult)
+    } else {
+      println("Invalid food selections. Please select from the available foods.")
+    }
+  }
+
+  def calculateAverage(prices: List[Int]): Double = {
+    val total = prices.sum.toDouble
+    val count = prices.length.toDouble
+    if (count > 0) total / count else 0.0
+  }
+
+  def compareAverages(avg1: Double, avg2: Double): String = {
+    if (avg1 > avg2) s"The first food has a higher average price over the period."
+    else if (avg1 < avg2) s"The second food has a higher average price over the period."
+    else "Both foods have the same average price over the period."
+  }
 }
+
