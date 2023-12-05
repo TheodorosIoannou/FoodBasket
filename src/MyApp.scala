@@ -8,7 +8,7 @@ object MyApp extends App {
   // print data to check it's been read in correctly
   println(mapdata)
 
-  // Define menu options as a Map of actions
+  // Menu options
   val actionMap = Map[Int, () => Boolean](
     1 -> handleOne,
     2 -> handleTwo,
@@ -62,6 +62,8 @@ object MyApp extends App {
 
   def handleThree(): Boolean = {
     // Implement logic for menu option 3
+    println("median price over the period for each food")
+    mnuShowMedianPrices(medianPrices)
     true
   }
 
@@ -106,7 +108,7 @@ object MyApp extends App {
     }
   }
 
-  // Utility function to find both the highest and lowest prices in a list of prices
+  // Function to find both the highest and lowest prices
   def highestAndLowestPrices(): Map[String, (Int, Int)] = {
     mapdata.map { case (food, prices) =>
       val highestPrice = findHighestPrice(prices)
@@ -115,17 +117,37 @@ object MyApp extends App {
     }
   }
 
-  // Utility function to find the highest price in a list of prices
+
+  // Function to find the highest price
   def findHighestPrice(prices: List[Int]): Int = {
     prices.maxOption.getOrElse(0)
   }
 
-  // Utility function to find the lowest price in a list of prices
+  // Function to find the lowest price
   def findLowestPrice(prices: List[Int]): Int = {
     prices.minOption.getOrElse(0)
   }
+  // Function to find the median price
+  def medianPrices: () => Map[String, Int] = () => {
+    mapdata.map { case (food, prices) =>
+      val medianPrice = findMedianPrice(prices)
+      food -> findMedianPrice(prices)
+    }
+  }
 
-  // Function to show prices
+  def findMedianPrice(prices: List[Int]): Int = {
+    val sortedPrices = prices.sorted
+    val n = sortedPrices.length
+
+    if (n % 2 == 0) {
+      // If the number of elements is even, take the average of the middle two elements
+      val middleIndices = n / 2
+      (sortedPrices(middleIndices - 1) + sortedPrices(middleIndices)) / 2
+    } else {
+      // If the number of elements is odd, take the middle element
+      sortedPrices(n / 2)
+    }
+  }
   // Function to show prices
   def mnuShowPrices(f: () => Map[String, Int]): Unit = {
     val pricesMap = f() // Call the function to get the Map[String, Int]
@@ -136,5 +158,10 @@ object MyApp extends App {
     val pricesMap = f()
     pricesMap.foreach { case (x, (highest, lowest)) => println(s"$x: Highest - $highest, Lowest - $lowest")
   }
+}
+
+  def mnuShowMedianPrices(f: () => Map[String, Int]): Unit = {
+    val pricesMap = f()
+    pricesMap.foreach { case (x, median) => println(s"$x: Median - $median")}
 }
 }
