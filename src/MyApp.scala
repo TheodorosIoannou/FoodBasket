@@ -7,6 +7,7 @@ object MyApp extends App {
   val mapdata: Map[String, List[Int]] = readFile("data.txt")
   // print data to check it's been read in correctly
   println(mapdata)
+  var basket: Map[String, Double] = Map()
 
   // Menu options
   val actionMap = Map[Int, () => Boolean](
@@ -83,17 +84,12 @@ object MyApp extends App {
 
   def handleSix(): Boolean = {
     println("Create your food basket:")
-
     println("Available foods:")
     mapdata.keys.foreach(println)
-    println(s"Select foods from above to include in your food basket.")
     println("Please enter food symbol and quantity (separated by space), e.g. RICE 2.5")
-  //  val basket: Map[String, Double] = getUserInputForBasket()
-  //  val basketTotal = calculateBasketTotal(basket)
-  //  println(s"The total value of your Food Basket based on current prices: $basketTotal")
+
+    readFoodBasketInput()
     true
-
-
   }
 
   def handleSeven(): Boolean = {
@@ -234,7 +230,42 @@ object MyApp extends App {
     else if (avg1 < avg2) s"The second food has a higher average price over the period."
     else "Both foods have the same average price over the period."
   }
+  def readFoodBasketInput(): Unit = {
+    var input = ""
+    do {
+      input = scala.io.StdIn.readLine()
+      if (input.nonEmpty) {
+        val Array(foodSymbol, quantityStr) = input.split("\\s+")
+        try {
+          val quantity = quantityStr.toDouble
+          if (mapdata.contains(foodSymbol.toUpperCase())) {
+            basket += (foodSymbol.toUpperCase() -> quantity)
+          } else {
+            println(s"Warning: Food symbol '$foodSymbol' not recognized. Ignored.")
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Invalid quantity format. Please enter a valid number.")
+        }
+      }
+    } while (input.nonEmpty)
 
+    displayBasketTotal()
+  }
+
+  def displayBasketTotal(): Unit = {
+    val basketTotal = calculateBasketTotal(basket)
+    println(s"The total value of your Food Basket based on current prices: $basketTotal")
+  }
+
+  def calculateBasketTotal(basket: Map[String, Double]): Double = {
+    basket.map { case (foodSymbol, quantity) =>
+      mapdata.getOrElse(foodSymbol, List()).lastOption match {
+        case Some(currentPrice) => currentPrice * quantity
+        case None => 0.0 // If there's no price data for the food, consider its value as 0
+      }
+    }.sum
+  }
 
 }
 
