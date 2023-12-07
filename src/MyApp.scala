@@ -178,21 +178,33 @@ object MyApp extends App {
   }
 
   def getFoodWithMaxRise(): String = {
-    val sixMonthsAgo = mapdata.view.mapValues(_.slice(0, 6)) // Prices from 6 months ago
-    val currentPrices = mapdata.view.mapValues(_.slice(6, 12)) // Prices from the last 6 months
+    // Filter and retrieve only the relevant time periods for calculation
+    val sixMonthsAgo = mapdata.view.mapValues(_.slice(12, 18)) // Prices from 6 months ago
+    val currentPrices = mapdata.view.mapValues(_.slice(18, 24)) // Prices from the last 6 months
 
+    // Calculate the difference in prices between the two periods for each food item
     val priceDifference = sixMonthsAgo.map { case (food, pricesSixMonthsAgo) =>
       val pricesCurrent = currentPrices(food)
       val difference = pricesCurrent.zip(pricesSixMonthsAgo).map { case (current, ago) =>
         current - ago
       }.sum
-      food -> difference
+      (food, difference)
+    }.toList // Convert the view back to a list for processing
+
+    // Filter out foods with non-positive (zero or negative) rises and find the maximum rise
+    val positiveRises = priceDifference.filter { case (_, diff) =>
+      diff > 0
     }
 
-    // Finding the food item with the maximum rise in price
-    val maxRiseFood = priceDifference.maxBy(_._2)
-    maxRiseFood._1 // Returning the food item symbol with the maximum rise
+    if (positiveRises.nonEmpty) {
+      // Retrieve the food item with the maximum positive rise
+      val maxRiseFood = positiveRises.maxBy(_._2)
+      maxRiseFood._1 // Return the food item symbol with the maximum positive rise
+    } else {
+      "No food with positive rise found"
+    }
   }
+
 
   def getUserInputForFoods(): (String, String) = {
     println("Enter the first food:")
