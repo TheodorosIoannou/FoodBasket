@@ -48,7 +48,7 @@ object MyApp extends App {
         true
     }
   }
-
+//
   def handleOne(): Boolean = {
     println("Current price for each food:")
     mnuShowPrices(currentPrices) // calls function mnuShowPrices, which invokes function currentPrices
